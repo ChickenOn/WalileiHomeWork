@@ -29,6 +29,7 @@ namespace WalileiHomeWork.Models
         public string 地址 { get; set; }
         public string Email { get; set; }
         public bool ISDELETED { get; set; }
+        public string CUSTOMER_CLASS { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<客戶銀行資訊> 客戶銀行資訊 { get; set; }

@@ -13,7 +13,6 @@ namespace WalileiHomeWork.Models
         }
         public override bool IsValid(object value)
         {
-
             if (value != null)
             {
                var one = db.客戶聯絡人.FirstOrDefault(r => r.Email == value.ToString());

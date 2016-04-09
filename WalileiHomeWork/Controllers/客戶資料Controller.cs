@@ -7,41 +7,49 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using WalileiHomeWork.Models;
+using NPOI.XSSF.UserModel;
+using NPOI.SS.UserModel;
+using System.IO;
+using System.Data.Entity.Infrastructure;
 
 namespace WalileiHomeWork.Controllers
 {
-    public class 客戶資料Controller : Controller
+    public class 客戶資料Controller : BaseController
     {
-        private 客戶資料Entities db = new 客戶資料Entities();
-
-
 
         // GET: 客戶資料
         public ActionResult Index(string txtSearch)
         {
-            var list = db.Database.SqlQuery<客戶資料>(@"select * from dbo.客戶資料 
-WHERE (客戶名稱 like @p0 OR 統一編號 like @p0 OR 電話 like @p0 OR 傳真 like @p0 OR 地址 like @p0 OR Email like @p0) AND ISDELETED = 0", "%" + txtSearch + "%");
-            return View(list.ToList());
+            return View(repo客戶資料.QueryKeyWord(txtSearch));
         }
 
         // GET: 客戶資料/Details/5
         public ActionResult Details(int? id)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
+            客戶資料 客戶資料 = repo客戶資料.Find(id.Value);
             if (客戶資料 == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.CUSCLASS = new SelectList(db.客戶資料, "Id", "CUSTOMER_CLASS");
             return View(客戶資料);
         }
 
         // GET: 客戶資料/Create
         public ActionResult Create()
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
+            List<SelectListItem> items = new List<SelectListItem>();
+            foreach (var item in db.客戶資料)
+            {
+                items.Add(new SelectListItem() { Text = item.CUSTOMER_CLASS, Value = item.CUSTOMER_CLASS});
+            }
+            ViewBag.CUSTOMER_CLASS = items;
             return View();
         }
 
@@ -50,30 +58,47 @@ WHERE (客戶名稱 like @p0 OR 統一編號 like @p0 OR 電話 like @p0 OR 傳�
         // 詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkId=317598。
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,客戶名稱,統一編號,電話,傳真,地址,Email")] 客戶資料 客戶資料)
+        public ActionResult Create([Bind(Include = "Id,CUSTOMER_CLASS,客戶名稱,統一編號,電話,傳真,地址,Email")] 客戶資料 客戶資料)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (ModelState.IsValid)
             {
-                db.客戶資料.Add(客戶資料);
-                db.SaveChanges();
+                repo客戶資料.Add(客戶資料);
+                repo客戶資料.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
+            List<SelectListItem> items = new List<SelectListItem>();
+            foreach (var item in db.客戶資料)
+            {
+                bool slt = item.CUSTOMER_CLASS == 客戶資料.CUSTOMER_CLASS;
+                items.Add(new SelectListItem() { Text = item.CUSTOMER_CLASS, Value = item.CUSTOMER_CLASS, Selected = slt });
+            }
+            ViewBag.CUSTOMER_CLASS = items;
             return View(客戶資料);
         }
 
         // GET: 客戶資料/Edit/5
         public ActionResult Edit(int? id)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
+            客戶資料 客戶資料 = repo客戶資料.Find(id.Value);
             if (客戶資料 == null)
             {
                 return HttpNotFound();
             }
+            List<SelectListItem> items = new List<SelectListItem>();
+            foreach (var item in db.客戶資料)
+            {
+                bool slt = item.CUSTOMER_CLASS == 客戶資料.CUSTOMER_CLASS;
+                items.Add(new SelectListItem() { Text = item.CUSTOMER_CLASS, Value = item.CUSTOMER_CLASS, Selected = slt });
+            }
+
+            ViewBag.CUSTOMER_CLASS = items;
             return View(客戶資料);
         }
 
@@ -82,14 +107,24 @@ WHERE (客戶名稱 like @p0 OR 統一編號 like @p0 OR 電話 like @p0 OR 傳�
         // 詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkId=317598。
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,客戶名稱,統一編號,電話,傳真,地址,Email")] 客戶資料 客戶資料)
+        public ActionResult Edit([Bind(Include = "Id,CUSTOMER_CLASS,客戶名稱,統一編號,電話,傳真,地址,Email")] 客戶資料 客戶資料)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (ModelState.IsValid)
             {
-                db.Entry(客戶資料).State = EntityState.Modified;
-                db.SaveChanges();
+                var context = (客戶資料Entities) repo客戶資料.UnitOfWork.Context;
+                repo客戶資料.UnitOfWork.Context.Entry(客戶資料).State = EntityState.Modified;
+                repo客戶資料.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
+            List<SelectListItem> items = new List<SelectListItem>();
+            foreach (var item in db.客戶資料)
+            {
+                bool slt = item.CUSTOMER_CLASS == 客戶資料.CUSTOMER_CLASS;
+                items.Add(new SelectListItem() { Text = item.CUSTOMER_CLASS, Value = item.CUSTOMER_CLASS,Selected=slt });
+            }
+
+            ViewBag.CUSTOMER_CLASS = items;
             return View(客戶資料);
         }
 
@@ -100,7 +135,7 @@ WHERE (客戶名稱 like @p0 OR 統一編號 like @p0 OR 電話 like @p0 OR 傳�
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
+            客戶資料 客戶資料 = repo客戶資料.Find(id.Value);
             if (客戶資料 == null)
             {
                 return HttpNotFound();
@@ -113,9 +148,9 @@ WHERE (客戶名稱 like @p0 OR 統一編號 like @p0 OR 電話 like @p0 OR 傳�
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            客戶資料.ISDELETED = true;
-            db.SaveChanges();
+            客戶資料 客戶資料 = repo客戶資料.Find(id);
+            repo客戶資料.Delete(客戶資料);
+            repo客戶資料.UnitOfWork.Commit();
             return RedirectToAction("Index");
         }
 
@@ -123,9 +158,33 @@ WHERE (客戶名稱 like @p0 OR 統一編號 like @p0 OR 電話 like @p0 OR 傳�
         {
             if (disposing)
             {
-                db.Dispose();
+                repo客戶資料.UnitOfWork.Context.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        public ActionResult Export(string txtSearch)
+        {
+            var result =repo客戶資料.QueryKeyWord(txtSearch);
+
+            XSSFWorkbook wb = new XSSFWorkbook();
+            ISheet u_sheet = wb.CreateSheet("My Sheet_20方法二");
+
+            int i = 0;
+            foreach (客戶資料 item in result)
+            {
+                u_sheet.CreateRow(i);
+                u_sheet.GetRow(i).CreateCell(0).SetCellValue(item.客戶名稱);
+                u_sheet.GetRow(i).CreateCell(1).SetCellValue(item.電話);
+                i++;
+            }
+            
+
+
+            MemoryStream MS = new MemoryStream();   //==需要 System.IO命名空間
+            wb.Write(MS);
+
+            return File(MS.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
     }
 }

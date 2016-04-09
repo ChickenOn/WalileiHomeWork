@@ -10,15 +10,12 @@ using WalileiHomeWork.Models;
 
 namespace WalileiHomeWork.Controllers
 {
-    public class 客戶聯絡人Controller : Controller
+    public class 客戶聯絡人Controller : BaseController
     {
-        private 客戶資料Entities db = new 客戶資料Entities();
-
         // GET: 客戶資料
         public ActionResult Index(string txtSearch)
         {
-            var list = db.Database.SqlQuery<客戶聯絡人>(@"select * from dbo.客戶聯絡人 
- WHERE (客戶Id like @p0 OR 職稱 like @p0 OR 姓名 like @p0 OR Email like @p0 OR 手機 like @p0 OR 電話 like @p0) AND ISDELETED = 0", "%" + txtSearch + "%");
+            var list = repo客戶聯絡人.QueryKeyWord(txtSearch);
             return View(list.ToList());
         }
 
@@ -29,7 +26,7 @@ namespace WalileiHomeWork.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 = repo客戶聯絡人.Find(id.Value);
             if (客戶聯絡人 == null)
             {
                 return HttpNotFound();
@@ -40,6 +37,7 @@ namespace WalileiHomeWork.Controllers
         // GET: 客戶聯絡人/Create
         public ActionResult Create()
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱");
             return View();
         }
@@ -51,10 +49,19 @@ namespace WalileiHomeWork.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,客戶Id,職稱,姓名,Email,手機,電話")] 客戶聯絡人 客戶聯絡人)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (ModelState.IsValid)
             {
-                db.客戶聯絡人.Add(客戶聯絡人);
-                db.SaveChanges();
+                try
+                {
+                    repo客戶聯絡人.Add(客戶聯絡人);
+                }
+                catch (EmailRepeatException)
+                {
+                    ViewBag.Err = "email重複";
+                    return RedirectToAction("Create");
+                }
+                repo客戶聯絡人.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
@@ -65,11 +72,12 @@ namespace WalileiHomeWork.Controllers
         // GET: 客戶聯絡人/Edit/5
         public ActionResult Edit(int? id)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 = repo客戶聯絡人.Find(id.Value);
             if (客戶聯絡人 == null)
             {
                 return HttpNotFound();
@@ -85,6 +93,7 @@ namespace WalileiHomeWork.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,客戶Id,職稱,姓名,Email,手機,電話")] 客戶聯絡人 客戶聯絡人)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (ModelState.IsValid)
             {
                 db.Entry(客戶聯絡人).State = EntityState.Modified;
@@ -98,11 +107,12 @@ namespace WalileiHomeWork.Controllers
         // GET: 客戶聯絡人/Delete/5
         public ActionResult Delete(int? id)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 = repo客戶聯絡人.Find(id.Value);
             if (客戶聯絡人 == null)
             {
                 return HttpNotFound();
@@ -115,9 +125,9 @@ namespace WalileiHomeWork.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
-            客戶聯絡人.ISDELETED = true;
-            db.SaveChanges();
+            客戶聯絡人 客戶聯絡人 = repo客戶聯絡人.Find(id);
+            repo客戶聯絡人.Delete(客戶聯絡人);
+            repo客戶聯絡人.UnitOfWork.Commit();
             return RedirectToAction("Index");
         }
 
@@ -125,7 +135,7 @@ namespace WalileiHomeWork.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                repo客戶聯絡人.UnitOfWork.Context.Dispose();
             }
             base.Dispose(disposing);
         }

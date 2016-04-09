@@ -26,7 +26,6 @@ namespace WalileiHomeWork.Models
         
         [StringLength(250, ErrorMessage="欄位長度不得大於 250 個字元")]
         [EmailAddress]
-        [恩恩(ErrorMessage ="聯絡人Email重複")]
         [Required]
         public string Email { get; set; }
         

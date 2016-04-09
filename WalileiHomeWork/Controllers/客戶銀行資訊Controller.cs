@@ -10,10 +10,8 @@ using WalileiHomeWork.Models;
 
 namespace WalileiHomeWork.Controllers
 {
-    public class 客戶銀行資訊Controller : Controller
+    public class 客戶銀行資訊Controller : BaseController
     {
-        private 客戶資料Entities db = new 客戶資料Entities();
-
         // GET: 客戶銀行資訊
         //public ActionResult Index()
         //{
@@ -30,7 +28,7 @@ namespace WalileiHomeWork.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶銀行資訊 客戶銀行資訊 = db.客戶銀行資訊.Find(id);
+            客戶銀行資訊 客戶銀行資訊 = repo客戶銀行.Find(id.Value);
             if (客戶銀行資訊 == null)
             {
                 return HttpNotFound();
@@ -40,15 +38,13 @@ namespace WalileiHomeWork.Controllers
 
         public ActionResult Index(string txtSearch)
         {
-            var list = db.Database.SqlQuery<客戶銀行資訊>(@"SELECT *
-  FROM[客戶銀行資訊]
-  WHERE([客戶Id] like @p0 OR[帳戶名稱] like @p0 OR 銀行名稱 like @p0 OR 帳戶號碼 like @p0) AND ISDELETED = 0", "%" + txtSearch + "%");
-            return View(list.ToList());
+            return View(repo客戶銀行.QueryKeyWord(txtSearch));
         }
 
         // GET: 客戶銀行資訊/Create
         public ActionResult Create()
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶銀行.UnitOfWork.Context;
             ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱");
             return View();
         }
@@ -60,25 +56,27 @@ namespace WalileiHomeWork.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,客戶Id,銀行名稱,銀行代碼,分行代碼,帳戶名稱,帳戶號碼")] 客戶銀行資訊 客戶銀行資訊)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶銀行.UnitOfWork.Context;
             if (ModelState.IsValid)
             {
-                db.客戶銀行資訊.Add(客戶銀行資訊);
-                db.SaveChanges();
+                repo客戶銀行.Add(客戶銀行資訊);
+                repo客戶銀行.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱", 客戶銀行資訊.客戶Id);
+            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱");
             return View(客戶銀行資訊);
         }
 
         // GET: 客戶銀行資訊/Edit/5
         public ActionResult Edit(int? id)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶銀行.UnitOfWork.Context;
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶銀行資訊 客戶銀行資訊 = db.客戶銀行資訊.Find(id);
+            客戶銀行資訊 客戶銀行資訊 = repo客戶銀行.Find(id.Value);
             if (客戶銀行資訊 == null)
             {
                 return HttpNotFound();
@@ -94,6 +92,7 @@ namespace WalileiHomeWork.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,客戶Id,銀行名稱,銀行代碼,分行代碼,帳戶名稱,帳戶號碼")] 客戶銀行資訊 客戶銀行資訊)
         {
+            客戶資料Entities db = (客戶資料Entities)repo客戶銀行.UnitOfWork.Context;
             if (ModelState.IsValid)
             {
                 db.Entry(客戶銀行資訊).State = EntityState.Modified;
@@ -111,7 +110,7 @@ namespace WalileiHomeWork.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶銀行資訊 客戶銀行資訊 = db.客戶銀行資訊.Find(id);
+            客戶銀行資訊 客戶銀行資訊 = repo客戶銀行.Find(id.Value);
             if (客戶銀行資訊 == null)
             {
                 return HttpNotFound();
@@ -124,9 +123,9 @@ namespace WalileiHomeWork.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶銀行資訊 客戶銀行資訊 = db.客戶銀行資訊.Find(id);
-            客戶銀行資訊.ISDELETED = true;
-            db.SaveChanges();
+            客戶銀行資訊 客戶銀行資訊 = repo客戶銀行.Find(id);
+            repo客戶銀行.Delete(客戶銀行資訊);
+            repo客戶銀行.UnitOfWork.Commit();
             return RedirectToAction("Index");
         }
 
@@ -134,7 +133,7 @@ namespace WalileiHomeWork.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                repo客戶銀行.UnitOfWork.Context.Dispose();
             }
             base.Dispose(disposing);
         }
