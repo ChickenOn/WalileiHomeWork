@@ -146,7 +146,7 @@
           <Property Name="姓名" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Email" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="手機" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="電話" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PHONE" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="客戶資料" Relationship="Self.FK_客戶聯絡人_客戶資料" FromRole="客戶聯絡人" ToRole="客戶資料" />
           <Property Name="ISDELETED" Type="Boolean" Nullable="false" />
         </EntityType>
@@ -243,7 +243,7 @@
                 <ScalarProperty Name="姓名" ColumnName="姓名" />
                 <ScalarProperty Name="Email" ColumnName="Email" />
                 <ScalarProperty Name="手機" ColumnName="手機" />
-                <ScalarProperty Name="電話" ColumnName="電話" />
+                <ScalarProperty Name="PHONE" ColumnName="電話" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

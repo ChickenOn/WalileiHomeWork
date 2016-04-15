@@ -1,0 +1,60 @@
+﻿@model IEnumerable<WalileiHomeWork.Models.客戶聯絡人>
+
+<h4>客戶聯絡人</h4>
+@using (Html.BeginForm())
+{
+
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.職稱)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.姓名)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.手機)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PHONE)
+            </th>
+            <th></th>
+        </tr>
+
+        @{ var data = Model.ToArray();
+            if (data.Any())
+            {
+                @Html.Hidden("客戶Id",data.Select(p=>p.客戶Id).FirstOrDefault())
+            }
+        }
+        @for (int i = 0; i < data.Length; i++)
+        {
+            <tr>
+                    @Html.HiddenFor(modelItem => data[i].Id)
+                <td>
+                    @Html.EditorFor(modelItem => data[i].職稱)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => data[i].姓名)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => data[i].Email)
+                </td>
+                <td>
+                    @Html.EditorFor(modelItem => data[i].手機)
+                </td>
+                <td>
+                    @Html.EditorFor(modelItem => data[i].PHONE)
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <input name="batchUpdate" type="submit" value="批次更新聯絡人資料" class="btn btn-danger" />
+            </td>
+        </tr>
+    </table>
+            }

@@ -17,13 +17,11 @@ namespace WalileiHomeWork.Controllers
     public class 客戶資料Controller : BaseController
     {
 
-        // GET: 客戶資料
         public ActionResult Index(string txtSearch)
         {
             return View(repo客戶資料.QueryKeyWord(txtSearch));
         }
 
-        // GET: 客戶資料/Details/5
         public ActionResult Details(int? id)
         {
             客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
@@ -40,7 +38,21 @@ namespace WalileiHomeWork.Controllers
             return View(客戶資料);
         }
 
-        // GET: 客戶資料/Create
+        [HttpPost]
+        public ActionResult Details(IList<ContactViewModel> data, int 客戶Id)
+        {
+            foreach (ContactViewModel item in data)
+            {
+                客戶聯絡人 contact = repo客戶聯絡人.Find(item.Id);
+                contact.職稱 = item.職稱;
+                contact.手機 = item.手機;
+                contact.PHONE = item.PHONE;
+                //TryUpdateModel(contact, new string[] { "PHONE"});
+            }
+            repo客戶聯絡人.UnitOfWork.Commit();
+            return RedirectToAction("Details", new { id = 客戶Id });
+        }
+
         public ActionResult Create()
         {
             客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
@@ -110,10 +122,8 @@ namespace WalileiHomeWork.Controllers
         public ActionResult Edit([Bind(Include = "Id,CUSTOMER_CLASS,客戶名稱,統一編號,電話,傳真,地址,Email")] 客戶資料 客戶資料)
         {
             客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
-            if (ModelState.IsValid)
+            if (TryUpdateModel(客戶資料, "Id,CUSTOMER_CLASS,客戶名稱,統一編號,電話,傳真,地址,Email".Split(',')))
             {
-                var context = (客戶資料Entities) repo客戶資料.UnitOfWork.Context;
-                repo客戶資料.UnitOfWork.Context.Entry(客戶資料).State = EntityState.Modified;
                 repo客戶資料.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
@@ -161,6 +171,11 @@ namespace WalileiHomeWork.Controllers
                 repo客戶資料.UnitOfWork.Context.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        public ActionResult CustomerContact(int id)
+        {
+            return PartialView(repo客戶資料.Find(id).客戶聯絡人);
         }
 
         public ActionResult Export(string txtSearch)

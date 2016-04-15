@@ -12,10 +12,13 @@ namespace WalileiHomeWork.Models
             return base.All();
         }
 
-        public DbRawSqlQuery<客戶聯絡人> QueryKeyWord(string key)
+        public IQueryable<客戶聯絡人> QueryKeyWord(string key)
         {
-            DbRawSqlQuery<客戶聯絡人> list = base.UnitOfWork.Context.Database.SqlQuery<客戶聯絡人>(@"select * from dbo.客戶聯絡人 
- WHERE (客戶Id like @p0 OR 職稱 like @p0 OR 姓名 like @p0 OR Email like @p0 OR 手機 like @p0 OR 電話 like @p0) AND ISDELETED = 0", "%" + key + "%");
+            var list = base.All();
+            if (!string.IsNullOrEmpty(key))
+            {
+                list = base.All().Where(p=>p.姓名.Contains(key));
+            }
             return list;
         }
 

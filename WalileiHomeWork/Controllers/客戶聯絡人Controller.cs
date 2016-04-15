@@ -12,14 +12,19 @@ namespace WalileiHomeWork.Controllers
 {
     public class 客戶聯絡人Controller : BaseController
     {
-        // GET: 客戶資料
         public ActionResult Index(string txtSearch)
         {
             var list = repo客戶聯絡人.QueryKeyWord(txtSearch);
+            ViewBag.DropDownList = GetDropDownList();
             return View(list.ToList());
         }
 
-        // GET: 客戶聯絡人/Details/5
+        [HttpPost]
+        public ActionResult Index()
+        {
+            return View();
+        }
+
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -34,7 +39,6 @@ namespace WalileiHomeWork.Controllers
             return View(客戶聯絡人);
         }
 
-        // GET: 客戶聯絡人/Create
         public ActionResult Create()
         {
             客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
@@ -42,12 +46,9 @@ namespace WalileiHomeWork.Controllers
             return View();
         }
 
-        // POST: 客戶聯絡人/Create
-        // 若要免於過量張貼攻擊，請啟用想要繫結的特定屬性，如需
-        // 詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkId=317598。
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,客戶Id,職稱,姓名,Email,手機,電話")] 客戶聯絡人 客戶聯絡人)
+        public ActionResult Create([Bind(Include = "Id,客戶Id,職稱,姓名,Email,手機,PHONE")] 客戶聯絡人 客戶聯絡人)
         {
             客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (ModelState.IsValid)
@@ -91,7 +92,7 @@ namespace WalileiHomeWork.Controllers
         // 詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkId=317598。
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,客戶Id,職稱,姓名,Email,手機,電話")] 客戶聯絡人 客戶聯絡人)
+        public ActionResult Edit([Bind(Include = "Id,客戶Id,職稱,姓名,Email,手機,PHONE")] 客戶聯絡人 客戶聯絡人)
         {
             客戶資料Entities db = (客戶資料Entities)repo客戶聯絡人.UnitOfWork.Context;
             if (ModelState.IsValid)
@@ -138,6 +139,18 @@ namespace WalileiHomeWork.Controllers
                 repo客戶聯絡人.UnitOfWork.Context.Dispose();
             }
             base.Dispose(disposing);
+        }
+        private SelectList GetDropDownList()
+        {
+            var 職稱s = repo客戶聯絡人.All().Select(p => p.職稱).Distinct().ToList();
+
+            List<SelectListItem> list = new List<SelectListItem>();
+            foreach (var item in 職稱s)
+            {
+                list.Add(new SelectListItem() { Value = item, Text = item });
+            }
+
+            return new SelectList(list, "Value", "Text");
         }
     }
 }
