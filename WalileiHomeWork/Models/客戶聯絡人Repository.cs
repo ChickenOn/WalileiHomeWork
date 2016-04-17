@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
+using System.Linq.Expressions;
 
 namespace WalileiHomeWork.Models
 {   
@@ -12,14 +13,38 @@ namespace WalileiHomeWork.Models
             return base.All();
         }
 
-        public IQueryable<客戶聯絡人> QueryKeyWord(string key)
+        public IQueryable<客戶聯絡人> QueryKeyWord(string key,string ddl,string sorting)
         {
-            var list = base.All();
+            var result = base.All().Where(p => p.ISDELETED == false);
             if (!string.IsNullOrEmpty(key))
             {
-                list = base.All().Where(p=>p.姓名.Contains(key));
+                result = result.Where(p=>p.姓名.Contains(key));
             }
-            return list;
+            if (!string.IsNullOrEmpty(ddl))
+            {
+                result = result.Where(p => p.職稱 == ddl);
+            }
+
+            if (!string.IsNullOrEmpty(sorting))
+            {
+                var param = Expression.Parameter(typeof(客戶聯絡人), "contact");
+                if (sorting.Contains("asc"))
+                {
+                    sorting = sorting.Replace("asc", "");
+                    var sortExp = Expression.Lambda<Func<客戶聯絡人, object>>(Expression.Property(param, sorting), param);
+                    result = result.OrderBy(sortExp);
+                }
+                else if (sorting.Contains("desc"))
+                {
+                    sorting = sorting.Replace("desc", "");
+                    var sortExp = Expression.Lambda<Func<客戶聯絡人, object>>(Expression.Property(param, sorting), param);
+                    result = result.OrderByDescending(sortExp);
+                }
+            }
+            else
+                result = result.OrderBy(p => p.Id);
+
+            return result;
         }
 
         public 客戶聯絡人 Find(int id)

@@ -28,7 +28,6 @@
                     <li>@Html.ActionLink("客戶資料", "Index", "客戶資料")</li>
                     <li>@Html.ActionLink("客戶銀行資訊", "Index", "客戶銀行資訊")</li>
                     <li>@Html.ActionLink("客戶聯絡人", "Index", "客戶聯絡人")</li>
-                    <li>@Html.ActionLink("客戶COUNT", "Index", "View_CustomerDetail")</li>
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>
@@ -38,7 +37,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - 我的 ASP.NET 應用程式</p>
+            <p>此頁面共耗時 @ViewBag.dtTimespan ms</p>
         </footer>
     </div>
 

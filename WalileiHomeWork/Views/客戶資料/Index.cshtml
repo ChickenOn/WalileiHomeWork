@@ -1,80 +1,135 @@
 ﻿@model IEnumerable<WalileiHomeWork.Models.客戶資料>
-
-@{
-    ViewBag.Title = "Index";
-}
-
 <h2>客戶資料</h2>
+
 
 @using (Html.BeginForm())
 {
     <p>
         <table>
             <tr>
-                <td>@Html.ActionLink("Create New", "Create")</td>
-                <td style="width:70%"></td>
+                <td style="padding-right:10px">@Html.ActionLink("Create New", "Create")</td>
+                <td>@Html.ActionLink("TEST_ERROR", "TestError")</td>
+                <td style="width:60%"></td>
                 <td>@Html.TextBox("txtSearch", "")</td>
                 <td><input type="submit" value="找找" class="btn btn-primary" /></td>
-                <td>@Html.ActionLink("匯出","Export")</td>
+                <td>@Html.ActionLink("匯出", "Export")</td>
             </tr>
         </table>
+    </p>
+    <table class="table">
+        <tr>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("客戶名稱")'>
+                        @Html.DisplayNameFor(model => model.客戶名稱)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("CUSTOMER_CLASS")'>
+                        @Html.DisplayNameFor(model => model.CUSTOMER_CLASS)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("統一編號")'>
+                        @Html.DisplayNameFor(model => model.統一編號)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("電話")'>
+                        @Html.DisplayNameFor(model => model.電話)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("傳真")'>
+                        @Html.DisplayNameFor(model => model.傳真)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("地址")'>
+                        @Html.DisplayNameFor(model => model.地址)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("Email")'>
+                        @Html.DisplayNameFor(model => model.Email)
+                    </label>
+                </a>
+            </th>
+            <th>
+                @Html.Hidden("sorting")
+                @Html.Hidden("page")
+            </th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.客戶名稱)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CUSTOMER_CLASS)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.統一編號)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.電話)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.傳真)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.地址)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                </td>
+            </tr>
+        }
 
-    </p>}
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.客戶名稱)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CUSTOMER_CLASS)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.統一編號)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.電話)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.傳真)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.地址)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Email)
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.客戶名稱)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem=>item.CUSTOMER_CLASS)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.統一編號)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.電話)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.傳真)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.地址)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Email)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
+    </table>
 }
 
-</table>
+<style>
+    .sorting {
+        cursor: pointer;
+    }
+</style>
+<script>
+    function onSortingClick(sortBy) {
+        var sortVal = $("#sorting");
+        if (sortVal.val().indexOf(sortBy) != -1) {
+            if (sortVal.val().indexOf("asc") != -1) {
+                sortVal.val(sortVal.val().replace("asc", "desc"));
+            }
+            else if (sortVal.val().indexOf("desc") != -1) {
+                sortVal.val(sortVal.val().replace("desc", "asc"));
+            }
+        }
+        else {
+            sortVal.val(sortBy + "asc");
+        }
+        $("form").submit();
+    }
+</script>
+
+@using PagedList
+@using PagedList.Mvc
+@Html.PagedListPager(Model as IPagedList, p=>Url.Action("Index",new { pageNumber = p }))

@@ -11,15 +11,24 @@ using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
 using System.IO;
 using System.Data.Entity.Infrastructure;
+using PagedList;
 
 namespace WalileiHomeWork.Controllers
 {
     public class 客戶資料Controller : BaseController
     {
 
-        public ActionResult Index(string txtSearch)
+        public ActionResult Index(string txtSearch,int pageNumber=1)
         {
-            return View(repo客戶資料.QueryKeyWord(txtSearch));
+            var data = repo客戶資料.QueryKeyWord(txtSearch, "").ToPagedList(pageNumber, 2);
+            return View(data);
+        }
+
+        [HttpPost]
+        public ActionResult Index(string txtSearch, string sorting, int pageNumber = 1)
+        {
+            var data = repo客戶資料.QueryKeyWord(txtSearch, sorting).ToPagedList(pageNumber, 2);
+            return View(data);
         }
 
         public ActionResult Details(int? id)
@@ -34,7 +43,6 @@ namespace WalileiHomeWork.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.CUSCLASS = new SelectList(db.客戶資料, "Id", "CUSTOMER_CLASS");
             return View(客戶資料);
         }
 
@@ -178,9 +186,16 @@ namespace WalileiHomeWork.Controllers
             return PartialView(repo客戶資料.Find(id).客戶聯絡人);
         }
 
-        public ActionResult Export(string txtSearch)
+        [HandleError(ExceptionType = typeof(FormatException), View = "Error2")]
+        public ActionResult TestError()
         {
-            var result =repo客戶資料.QueryKeyWord(txtSearch);
+            throw new FormatException("yoyoyo");
+            return View();
+        }
+
+        public ActionResult Export(string txtSearch, string sorting)
+        {
+            var result =repo客戶資料.QueryKeyWord(txtSearch,sorting);
 
             XSSFWorkbook wb = new XSSFWorkbook();
             ISheet u_sheet = wb.CreateSheet("My Sheet_20方法二");

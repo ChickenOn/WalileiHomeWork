@@ -7,22 +7,26 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using WalileiHomeWork.Models;
+using PagedList;
+using PagedList.Mvc;
 
 namespace WalileiHomeWork.Controllers
 {
     public class 客戶聯絡人Controller : BaseController
     {
-        public ActionResult Index(string txtSearch)
+        public ActionResult Index(string txtSearch,int pageNumber=1)
         {
-            var list = repo客戶聯絡人.QueryKeyWord(txtSearch);
-            ViewBag.DropDownList = GetDropDownList();
-            return View(list.ToList());
+            var list = repo客戶聯絡人.QueryKeyWord(txtSearch, "","").ToPagedList(pageNumber,3);
+            ViewBag.DropDownList = GetDropDownList("");
+            return View(list);
         }
 
         [HttpPost]
-        public ActionResult Index()
+        public ActionResult Index(string txtSearch, string DropDownList, string sorting, int pageNumber = 1)
         {
-            return View();
+            var list = repo客戶聯絡人.QueryKeyWord(txtSearch, DropDownList, sorting).ToPagedList(pageNumber, 3);
+            ViewBag.DropDownList = GetDropDownList(DropDownList);
+            return View(list);
         }
 
         public ActionResult Details(int? id)
@@ -140,7 +144,7 @@ namespace WalileiHomeWork.Controllers
             }
             base.Dispose(disposing);
         }
-        private SelectList GetDropDownList()
+        private SelectList GetDropDownList(string selectedValue)
         {
             var 職稱s = repo客戶聯絡人.All().Select(p => p.職稱).Distinct().ToList();
 
@@ -150,7 +154,7 @@ namespace WalileiHomeWork.Controllers
                 list.Add(new SelectListItem() { Value = item, Text = item });
             }
 
-            return new SelectList(list, "Value", "Text");
+            return new SelectList(list, "Value", "Text", selectedValue);
         }
     }
 }

@@ -11,64 +11,134 @@
         <table>
             <tr>
                 <td>
-                    @Html.DropDownList("DropDownList", null,"阿是不會選職稱喔", new { onchange = "$('form').submit();" ,@class = "form-control" })
+                    @Html.DropDownList("DropDownList", null, "阿是不會選職稱喔", new { onchange = "$('form').submit();", @class = "form-control" })
                 </td>
                 <td>@Html.ActionLink("Create New", "Create")</td>
                 <td style="width:50%"></td>
-                <td>@Html.TextBox("txtSearch", "", new {@class= "form-control" })</td>
+                <td>@Html.TextBox("txtSearch", "", new { @class = "form-control" })</td>
                 <td><input type="submit" value="找找" class="btn btn-primary" /></td>
             </tr>
         </table>
-    </p>}
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.職稱)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.姓名)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Email)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.手機)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PHONE)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.客戶資料.客戶名稱)
-        </th>
-        <th></th>
-    </tr>
+    </p>
+    <table class="table">
+        <tr>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("職稱")'>
+                        @Html.DisplayNameFor(model => model.職稱)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("姓名")'>
+                        @Html.DisplayNameFor(model => model.姓名)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("Email")'>
+                        @Html.DisplayNameFor(model => model.Email)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("手機")'>
+                        @Html.DisplayNameFor(model => model.手機)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("PHONE")'>
+                        @Html.DisplayNameFor(model => model.PHONE)
+                    </label>
+                </a>
+            </th>
+            <th>
+                <a>
+                    <label class="sorting" onclick='onSortingClick("客戶資料.客戶名稱")'>
+                        @Html.DisplayNameFor(model => model.客戶資料.客戶名稱)
+                    </label>
+                </a>
+            </th>
+            <th>
+                @Html.Hidden("sorting")
+                @Html.Hidden("pageNumber")
+            </th>
+        </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.職稱)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.姓名)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Email)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.手機)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PHONE)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.客戶資料.客戶名稱)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.職稱)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.姓名)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.手機)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PHONE)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.客戶資料.客戶名稱)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                </td>
+            </tr>
+        }
+
+    </table>
 }
+<style>
+    .sorting {
+        cursor: pointer;
+    }
+</style>
+<script>
+    function onSortingClick(sortBy) {
+        var sortVal = $("#sorting");
+        if (sortVal.val().indexOf(sortBy) != -1) {
+            if (sortVal.val().indexOf("asc") != -1) {
+                sortVal.val(sortVal.val().replace("asc", "desc"));
+            }
+            else if (sortVal.val().indexOf("desc") != -1) {
+                sortVal.val(sortVal.val().replace("desc", "asc"));
+            }
+        }
+        else {
+            sortVal.val(sortBy + "asc");
+        }
+        $("form").submit();
+    }
+    
+</script>
+@section scripts {
+    <script type="text/javascript">
 
-</table>
+        $(function () {
+            $('.pagination a').on('click', function () {
+                debugger;
+                var href = $(this).attr('href');
+                $("#pageNumber").val( href.substring(href.indexOf('?pageNumber=') + 12));
+                $("form").submit();
+                return false;
+            });
+        });
+    </script>
+    }
+
+@using PagedList
+@using PagedList.Mvc
+@Html.PagedListPager(Model as IPagedList, p => Url.Action("Index", new { pageNumber = p }))

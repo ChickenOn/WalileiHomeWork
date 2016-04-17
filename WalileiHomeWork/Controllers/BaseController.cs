@@ -7,6 +7,7 @@ using WalileiHomeWork.Models;
 
 namespace WalileiHomeWork.Controllers
 {
+    [CalculateTime]
     public class BaseController : Controller
     {
         protected 客戶資料Repository repo客戶資料 = RepositoryHelper.Get客戶資料Repository();
